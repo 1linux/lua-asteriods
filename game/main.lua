@@ -6,7 +6,7 @@ end
 require"asteriod"
 require"ship"
 love.physics.setMeter(64)
-world = love.physics.newWorld(0, 0, true)
+world = love.physics.newWorld(0, 0, false)
 
 -- objects={}
 
@@ -15,10 +15,12 @@ local randDir=function()
 end
 
 function love.load()
+  love.window.setMode(1024, 768, {fullscreen=true, resizable=false, vsync=true,})
+  love.mouse.setVisible(false)
   --love.window.setMode( 0, 0) -- full screen
 
-  for t=1,13 do
-    local ast=Asteroid(world, math.random(2,4), nil, 400+math.random()*800-400,300+math.random()*600-300)
+  for t=1,29 do
+    local ast=Asteroid(world, math.random(1,6), nil, 400+math.random()*800-400,300+math.random()*600-300)
     ast.velocity=1
     ast.spin=randDir()*(math.random()*2+0.2)
     ast.heading=math.random()*8
@@ -26,7 +28,7 @@ function love.load()
     -- ast.body:applyForce(400, 0)
     --table.insert(objects, ast)
   end
-  for t=1,3 do
+  for t=1,2 do
     local ship = Ship(world,400+math.random()*800-400,300+math.random()*600-300)
     ship.heading=1+math.random()*4
     ship.velocity=0.5+math.random()*2
@@ -44,6 +46,7 @@ function love.draw()
 end
 
 function love.update(dt)
+  if love.keyboard.isDown("escape") then os.exit(0) end
   world:update(dt) --this puts the world into motion
   for _,obj in ipairs(Object.objects) do
     obj:update(dt)

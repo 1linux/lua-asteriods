@@ -11,7 +11,7 @@ function Ship:init(world, x, y)
      10, 10,
   }
   self.shape = love.physics.newPolygonShape(self.vertices)
-  self.fixture = love.physics.newFixture(self.body, self.shape, 3) -- A higher density gives it more mass.
+  self.fixture = love.physics.newFixture(self.body, self.shape, 1) -- A higher density gives it more mass.
 
   self.angle=0
 end

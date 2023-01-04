@@ -28,7 +28,7 @@ function Asteroid:init(world, size, parent, x, y)
   end
   --self.body = love.physics.newBody(world, self.x, self.y, "dynamic")
   self.shape = love.physics.newPolygonShape(self.vertices)
-  self.fixture = love.physics.newFixture(self.body, self.shape, size) -- A higher density gives it more mass.
+  self.fixture = love.physics.newFixture(self.body, self.shape, 1) -- A higher density gives it more mass.
 
   self.__vertices={
     -9, 0,
