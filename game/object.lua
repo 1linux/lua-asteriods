@@ -18,45 +18,50 @@ Object:set{
   visible = {
     value = false,
   },
-  x = 0,  -- 0..1 Bezüglich des Spieldfelds
-  y = 0,
+  x = {
+    value=0,
+    get = function(self,value)
+            return self.body:getX( )
+          end,
+    set = function(self,newVal, oldVal)
+            self.body:setX(newVal)
+            return newVal
+          end
+  },
+  y = {
+    value=0,
+    get = function(self,value)
+            return self.body:getY( )
+          end,
+    set = function(self,newVal, oldVal)
+            self.body:setY(newVal)
+          end
+  },
   rotation=0,
-  spin=0,
+  spin={
+    value=0,
+    set = function(self,newVal, oldVal)
+      self.body:setAngularVelocity(newVal)
+      return newVal
+    end
+  },
   heading=0, -- Vektor der Geschwindigkeit
   velocity=0, -- Velocity in units / Sekunde
   vector=0, -- >Vektor der Kraft
   acceleration=0, -- Acceleration in units / Sekunde^2
-
-	property = {
-		value = "v",
-		get = function(self, value) return self.a .. value end
-	},
-	property2 = {
-		value = 3,
-		set = function(self, newVal, oldVal) return newVal * oldVal end
-	}
 }
 
 -- Simple Object - bewegt sich nicht
 function Object:update(dt)
-  if self.velocity>0 then
-    self.x = self.x + math.cos(self.heading)*self.velocity
-    self.y = self.y + math.sin(self.heading)*self.velocity
-    if self.x > love.graphics.getWidth() then
-      self.x = self.x - love.graphics.getWidth()
-    elseif self.x<0 then
-      self.x = self.x + love.graphics.getWidth()
-    end
-    if self.y > love.graphics.getHeight() then
-      self.y = self.y - love.graphics.getHeight()
-    elseif self.y<0 then
-      self.y = self.y + love.graphics.getHeight()
-    end
-
+  if self.x > love.graphics.getWidth() then
+    self.x = self.x - love.graphics.getWidth()
+  elseif self.x<0 then
+    self.x = self.x + love.graphics.getWidth()
   end
-  self.rotation=self.rotation+self.spin*dt
-  if self.rotation >2*math.pi then
-    self.rotation=self.rotation-2*math.pi
+  if self.y > love.graphics.getHeight() then
+    self.y = self.y - love.graphics.getHeight()
+  elseif self.y<0 then
+    self.y = self.y + love.graphics.getHeight()
   end
   return
 end
@@ -69,8 +74,9 @@ function Object:delete()
   --TODO: Delete-Marker setzen, bei nächstem Update löschen
 end
 
-function Object:init()
-  self.tt=7
+function Object:init(world,x,y)
+  self.body=love.physics.newBody(world, x, y, "dynamic")
+  self.x=x
+  self.y=y
   table.insert(Object.objects,self)
-  -- TODO
 end
