@@ -53,15 +53,23 @@ Object:set{
 
 -- Simple Object - bewegt sich nicht
 function Object:update(dt)
+  local repo=false
   if self.x > love.graphics.getWidth() then
     self.x = self.x - love.graphics.getWidth()
+    repo=true
   elseif self.x<0 then
     self.x = self.x + love.graphics.getWidth()
+    repo=true
   end
   if self.y > love.graphics.getHeight() then
     self.y = self.y - love.graphics.getHeight()
+    repo=true
   elseif self.y<0 then
     self.y = self.y + love.graphics.getHeight()
+    repo=true
+  end
+  if repo then
+    self:event('REPOSITION')
   end
   return
 end
@@ -71,6 +79,10 @@ function Object:draw()
 end
 
 function Object:delete()
+  --TODO: Delete-Marker setzen, bei nächstem Update löschen
+end
+
+function Object:event(eventname, params)
   --TODO: Delete-Marker setzen, bei nächstem Update löschen
 end
 

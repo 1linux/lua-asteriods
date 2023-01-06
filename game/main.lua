@@ -5,7 +5,7 @@ end
 --require"object"
 require"asteriod"
 require"ship"
-love.physics.setMeter(64)
+love.physics.setMeter(2)
 world = love.physics.newWorld(0, 0, false)
 
 -- objects={}
@@ -15,7 +15,7 @@ local randDir=function()
 end
 
 function love.load()
-  love.window.setMode(1024, 768, {fullscreen=true, resizable=false, vsync=true,})
+  love.window.setMode(1440, 768, {fullscreen=true, resizable=false, vsync=true,})
   love.mouse.setVisible(false)
   --love.window.setMode( 0, 0) -- full screen
 

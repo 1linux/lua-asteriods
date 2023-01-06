@@ -29,42 +29,30 @@ function Asteroid:init(world, size, parent, x, y)
   --self.body = love.physics.newBody(world, self.x, self.y, "dynamic")
   self.shape = love.physics.newPolygonShape(self.vertices)
   self.fixture = love.physics.newFixture(self.body, self.shape, 1) -- A higher density gives it more mass.
-
-  self.__vertices={
-    -9, 0,
-    -10,-10,
-    -2,-10,
-    7,-8,
-    10,0,
-    9,8,
-    5,8,
-    -2,10,
-    -6,5,
-  }
+  self.fixture:setRestitution( math.random()*1.0 +0.5 )
+  self.fixture:setFriction( 1.0 )
+  self:reconfigureCollission()
 end
 
 function Asteroid:draw()
-  if false then
-    love.graphics.push()
-    -- love.graphics.setCanvas(canvas)
-    love.graphics.setLineStyle("rough")
-
-    love.graphics.translate(self.x+0.5,self.y+0.5)
-    love.graphics.rotate(self.rotation)
-    -- love.graphics.scale(self.size)
-    -- love.graphics.setLineWidth( 1/self.size )
-
-    love.graphics.setColor(0,0.1,0)
-    love.graphics.polygon("fill", self.vertices)
-    love.graphics.setColor(0,1,0)
-    love.graphics.polygon("line", self.vertices)
-    love.graphics.pop()
-    love.graphics.setLineWidth( 1 )
-  end
-  --love.graphics.setColor(0,0.1,0)
-  --love.graphics.polygon("fill", self.body:getWorldPoints(self.shape:getPoints()))
+  local _,_,group=self.fixture:getFilterData()
+  local intense=(group-1)*0.04
+  love.graphics.setColor(intense,intense,intense)
+  love.graphics.polygon("fill", self.body:getWorldPoints(self.shape:getPoints()))
   love.graphics.setColor(0,1,0)
   love.graphics.setLineStyle("rough")
   love.graphics.polygon("line", self.body:getWorldPoints(self.shape:getPoints()))
-  -- love.graphics.setCanvas()
+end
+
+function Asteroid:reconfigureCollission()
+  local ix=1
+  if math.random()<0.5 then ix=2 end
+  self.fixture:setFilterData( 1, 2, ix )
+end
+
+function Asteroid:event(eventname)
+  if eventname=='REPOSITION' then
+    self:reconfigureCollission()
+  end
+
 end
