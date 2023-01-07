@@ -15,8 +15,7 @@ local randDir=function()
 end
 
 function love.load()
-  -- love.window.setMode(1440, 768, {fullscreen=true, resizable=false, vsync=true,})
-  love.window.setMode(1440, 768, {vsync=true})
+  love.window.setMode(1440, 768, {fullscreen=true, resizable=false, vsync=true,})
   love.mouse.setVisible(false)
   --love.window.setMode( 0, 0) -- full screen
 
@@ -30,7 +29,7 @@ function love.load()
     --table.insert(objects, ast)
   end
   
-  ship = Ship(world,400+math.random()*800-400,300+math.random()*600-300)
+  Ship(world,400+math.random()*800-400,300+math.random()*600-300)
 end
 
 
