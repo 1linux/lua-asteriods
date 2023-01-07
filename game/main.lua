@@ -15,7 +15,8 @@ local randDir=function()
 end
 
 function love.load()
-  love.window.setMode(1440, 768, {fullscreen=true, resizable=false, vsync=true,})
+  -- love.window.setMode(1440, 768, {fullscreen=true, resizable=false, vsync=true,})
+  love.window.setMode(1440, 768, {vsync=true})
   love.mouse.setVisible(false)
   --love.window.setMode( 0, 0) -- full screen
 
@@ -28,13 +29,8 @@ function love.load()
     -- ast.body:applyForce(400, 0)
     --table.insert(objects, ast)
   end
-  for t=1,2 do
-    local ship = Ship(world,400+math.random()*800-400,300+math.random()*600-300)
-    ship.heading=1+math.random()*4
-    ship.velocity=0.5+math.random()*2
-    ship.spin=randDir()*(math.random())*2*math.pi
-    --table.insert(objects,ship)
-  end
+  
+  ship = Ship(world,400+math.random()*800-400,300+math.random()*600-300)
 end
 
 
@@ -47,6 +43,7 @@ end
 
 function love.update(dt)
   if love.keyboard.isDown("escape") then os.exit(0) end
+
   world:update(dt) --this puts the world into motion
   for _,obj in ipairs(Object.objects) do
     obj:update(dt)
