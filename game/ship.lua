@@ -15,7 +15,6 @@ function Ship:init(world, x, y, enginePower, maneuveringThrusterPower, maxAngula
     maneuveringThrusterPower = maneuveringThrusterPower or 1,
     enginePower = enginePower or 1
   } 
-  print(self.options)
   self.shape = love.physics.newPolygonShape(self.vertices)
   self.fixture = love.physics.newFixture(self.body, self.shape, 1) -- A higher density gives it more mass.
   self.fixture:setFilterData( 2, 1, 0 )
