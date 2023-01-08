@@ -27,6 +27,7 @@ Dependencies
 
 - LÖVE runtime [https://github.com/love2d/love/releases]
 - Lua class by Jon Stoler [https://github.com/jonstoler/class.lua]
+- Sounds made with [https://sfxr.me/]
 
 Motivation
 ---

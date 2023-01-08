@@ -3,8 +3,8 @@ require"object"
 
 Ship=Object:extend()
 
-function Ship:init(world, x, y, enginePower, maneuveringThrusterPower, maxAngularVelocity)
-  Object.init(self,world,x,y)
+function Ship:init( x, y, enginePower, maneuveringThrusterPower, maxAngularVelocity)
+  Object.init(self,'Ship',x,y)
   self.vertices={
     -10, 10,
       0, -15,
@@ -39,7 +39,6 @@ function Ship:draw()
   love.graphics.setLineStyle("rough")
   love.graphics.setColor(0,1,0)
   love.graphics.polygon("line", self.body:getWorldPoints(self.shape:getPoints()))
-
   --[[
   local cx, cy = self.body:getWorldCenter()
   if love.keyboard.isDown("w", "s") then
@@ -78,4 +77,10 @@ function Ship:updateAngularVelocity(dt)
     angularVelocity = angularVelocity + fAngularVelocity
   end
   self.body:setAngularVelocity(clamp(angularVelocity, -self.options["maxAngularVelocity"], self.options["maxAngularVelocity"]))
+end
+
+function Ship:event(eventName, ...)
+  if eventName=='COLLISION' then
+    Statics.tmp.didCrash=true
+  end
 end

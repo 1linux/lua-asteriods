@@ -1,0 +1,4 @@
+Statics={
+  tmp={},
+  objects={}
+}
