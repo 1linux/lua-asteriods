@@ -73,9 +73,11 @@ function love.update(dt)
   Statics.world:update(dt) --this puts the world into motion
 
   if Statics.tmp.didCollision then
+    Statics.sounds.sndClick:stop()
     Statics.sounds.sndClick:play()
   end
   if Statics.tmp.didCrash then
+    Statics.sounds.sndExplosion:stop()
     Statics.sounds.sndExplosion:play()
   end
 
