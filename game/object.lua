@@ -2,8 +2,6 @@ require"class"
 
 Object = class()
 
-Object.objects={}
-
 Object:set{
 	active = {
     value = true,
@@ -82,13 +80,14 @@ function Object:delete()
   --TODO: Delete-Marker setzen, bei nächstem Update löschen
 end
 
-function Object:event(eventname, params)
+function Object:event(eventname, ...)
   --TODO: Delete-Marker setzen, bei nächstem Update löschen
 end
 
-function Object:init(world,x,y)
-  self.body=love.physics.newBody(world, x, y, "dynamic")
+function Object:init(objectName,x,y)
+  self.body=love.physics.newBody(Statics.world, x, y, "dynamic")
   self.x=x
   self.y=y
-  table.insert(Object.objects,self)
+  self.name=objectName
+  table.insert(Statics.objects,self)
 end

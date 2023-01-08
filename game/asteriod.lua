@@ -3,8 +3,8 @@ require"object"
 
 Asteroid=Object:extend()
 
-function Asteroid:init(world, size, parent, x, y)
-  Object.init(self,world,x,y)
+function Asteroid:init(size, parent, x, y)
+  Object.init(self,'Asteroid',x,y)
   self.size=size
   self.distorts={}
   self.vertices={}
@@ -50,9 +50,16 @@ function Asteroid:reconfigureCollission()
   self.fixture:setFilterData( 1, 2, ix )
 end
 
-function Asteroid:event(eventname)
+function Asteroid:event(eventname,...)
   if eventname=='REPOSITION' then
     self:reconfigureCollission()
+    -- Statics.sounds.sndClick:play()
+  elseif eventname=='COLLISION' then
+    local args={...}
+    if args[1].name=='Asteroid' then
+      Statics.tmp.didCollision=true
+    end
+
   end
 
 end

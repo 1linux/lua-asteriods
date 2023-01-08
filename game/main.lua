@@ -1,14 +1,19 @@
 if os.getenv("LOCAL_LUA_DEBUGGER_VSCODE") == "1" then
   require("lldebugger").start()
 end
-
---require"object"
+require"statics"
+require"object"
 require"asteriod"
 require"ship"
 love.physics.setMeter(2)
-world = love.physics.newWorld(0, 0, false)
 
--- objects={}
+Statics.world = love.physics.newWorld(0, 0, false)
+
+Statics.sounds={}
+Statics.sounds.sndClick = love.audio.newSource("sounds/click.wav", "static")
+Statics.sounds.sndClick:setVolume(0.3)
+Statics.sounds.sndExplosion = love.audio.newSource("sounds/explosion.wav", "static")
+Statics.sounds.sndLaserShoot = love.audio.newSource("sounds/laserShoot.wav", "static")
 
 local randDir=function()
   if math.random()<0.5 then return -1 else return 1 end
@@ -17,10 +22,8 @@ end
 function love.load()
   love.window.setMode(1440, 768, {fullscreen=true, resizable=false, vsync=true,})
   love.mouse.setVisible(false)
-  --love.window.setMode( 0, 0) -- full screen
-
-  for t=1,29 do
-    local ast=Asteroid(world, math.random(1,6), nil, 400+math.random()*800-400,300+math.random()*600-300)
+  for t=1,15 do
+    local ast=Asteroid(math.random(1,6), nil, 400+math.random()*800-400,300+math.random()*600-300)
     ast.velocity=1
     ast.spin=randDir()*(math.random()*2+0.2)
     ast.heading=math.random()*8
@@ -29,26 +32,47 @@ function love.load()
     --table.insert(objects, ast)
   end
   for t=1,2 do
-    local ship = Ship(world,400+math.random()*800-400,300+math.random()*600-300)
+    local ship = Ship(400+math.random()*800-400,300+math.random()*600-300)
     ship.heading=1+math.random()*4
     ship.velocity=0.5+math.random()*2
     ship.spin=randDir()*(math.random())*2*math.pi
     --table.insert(objects,ship)
   end
+
+  Statics.world:setCallbacks(
+    function(fixture_a, fixture_b, contact)
+      local a,b
+      for _, o in ipairs(Statics.objects) do
+        if o.fixture==fixture_a then a=o end
+        if o.fixture==fixture_b then b=o end
+      end
+      if a then a:event('COLLISION', b, contact) end
+      if b then b:event('COLLISION', a, contact) end
+    end, function() end
+  )
+
 end
 
 
 function love.draw()
   love.graphics.print('Hello World!', 400, 300)
-  for _,obj in ipairs(Object.objects) do
+  for _,obj in ipairs(Statics.objects) do
     obj:draw()
   end
 end
 
 function love.update(dt)
-  if love.keyboard.isDown("escape") then os.exit(0) end
-  world:update(dt) --this puts the world into motion
-  for _,obj in ipairs(Object.objects) do
+  if love.keyboard.isDown("escape") then love.event.quit() end
+  Statics.tmp={}
+  Statics.world:update(dt) --this puts the world into motion
+  if Statics.tmp.didCollision then
+    Statics.sounds.sndClick:play()
+  end
+  if Statics.tmp.didCrash then
+    Statics.sounds.sndExplosion:play()
+  end
+
+  for _,obj in ipairs(Statics.objects) do
     obj:update(dt)
   end
 end
