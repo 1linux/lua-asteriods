@@ -18,7 +18,7 @@ function Ship:init( x, y, enginePower, maneuveringThrusterPower, maxAngularVeloc
   self.shape = love.physics.newPolygonShape(self.vertices)
   self.fixture = love.physics.newFixture(self.body, self.shape, 1) -- A higher density gives it more mass.
   self.fixture:setFilterData( 2, 1, 0 )
-  self.body:setAngularDamping( 0.1 )
+  self.body:setAngularDamping( 0.3 )
   --self.angle=0
 end
 
@@ -48,9 +48,9 @@ function Ship:draw()
   ]]--
 end
 
-function Ship:getPropulsionVector(backward)
+function Ship:getPropulsionVector(dt, backward)
   local angle = self.body:getAngle()
-  local propulsion = 150 * self.options["enginePower"]
+  local propulsion = cosmologicalConstant * dt * self.options["enginePower"]
   local fx, fy = math.cos(angle - math.pi / 2) * propulsion, math.sin(angle - math.pi / 2) * propulsion
 
   if backward then
@@ -64,14 +64,14 @@ end
 function Ship:updatePropulsion(dt)
   if love.keyboard.isDown("w", "s", "up", "down") then
     local backward=love.keyboard.isDown("s", "down")
-    self.body:applyLinearImpulse(self:getPropulsionVector(backward))
+    self.body:applyLinearImpulse(self:getPropulsionVector(dt, backward))
   end
 end
 
 function Ship:updateAngularVelocity(dt)
   local angularVelocity = self.body:getAngularVelocity()
   if love.keyboard.isDown("a", "d", "left", "right") then
-    local fAngularVelocity = 0.15 * self.options["maneuveringThrusterPower"]
+    local fAngularVelocity = cosmologicalConstant2 * dt * self.options["maneuveringThrusterPower"]
     if love.keyboard.isDown("a","left") then
       fAngularVelocity = fAngularVelocity * -1
     end

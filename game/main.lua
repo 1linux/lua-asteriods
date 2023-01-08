@@ -1,6 +1,10 @@
 if os.getenv("LOCAL_LUA_DEBUGGER_VSCODE") == "1" then
   require("lldebugger").start()
 end
+
+cosmologicalConstant = 150 *60
+cosmologicalConstant2 = 0.15 * 60
+
 require"statics"
 require"object"
 require"asteriod"
@@ -20,7 +24,7 @@ local randDir=function()
 end
 
 function love.load()
-  love.window.setMode(1440, 768, {fullscreen=true, resizable=false, vsync=true,})
+  love.window.setMode(1440, 768, {fullscreen=true, resizable=true, vsync=false,})
   love.mouse.setVisible(false)
   for t=1,15 do
     local ast=Asteroid(math.random(1,6), nil, 400+math.random()*800-400,300+math.random()*600-300)
@@ -50,7 +54,10 @@ end
 
 
 function love.draw()
-  love.graphics.print('Hello World!', 400, 300)
+  love.graphics.print(tostring(love.timer.getFPS())..' FPS', 0, 0)
+  if Statics.vsync then
+    love.graphics.print('VSYNC', 0, 10)
+  end
   for _,obj in ipairs(Statics.objects) do
     obj:draw()
   end
@@ -58,8 +65,13 @@ end
 
 function love.update(dt)
   if love.keyboard.isDown("escape") then love.event.quit() end
+  if love.keyboard.isDown("v") then love.window.setVSync( -1 ); Statics.vsync=true end
+  if love.keyboard.isDown("b") then love.window.setVSync( 0 );Statics.vsync=false end
+
   Statics.tmp={}
+
   Statics.world:update(dt) --this puts the world into motion
+
   if Statics.tmp.didCollision then
     Statics.sounds.sndClick:play()
   end
