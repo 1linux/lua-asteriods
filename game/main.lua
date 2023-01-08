@@ -31,13 +31,8 @@ function love.load()
     -- ast.body:applyForce(400, 0)
     --table.insert(objects, ast)
   end
-  for t=1,2 do
-    local ship = Ship(400+math.random()*800-400,300+math.random()*600-300)
-    ship.heading=1+math.random()*4
-    ship.velocity=0.5+math.random()*2
-    ship.spin=randDir()*(math.random())*2*math.pi
-    --table.insert(objects,ship)
-  end
+  
+  Ship(world,400+math.random()*800-400,300+math.random()*600-300)
 
   Statics.world:setCallbacks(
     function(fixture_a, fixture_b, contact)
