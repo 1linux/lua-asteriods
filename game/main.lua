@@ -31,8 +31,8 @@ function love.load()
     -- ast.body:applyForce(400, 0)
     --table.insert(objects, ast)
   end
-  
-  Ship(world,400+math.random()*800-400,300+math.random()*600-300)
+
+  Ship(400+math.random()*800-400,300+math.random()*600-300)
 
   Statics.world:setCallbacks(
     function(fixture_a, fixture_b, contact)

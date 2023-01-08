@@ -14,7 +14,7 @@ function Ship:init( x, y, enginePower, maneuveringThrusterPower, maxAngularVeloc
     maxAngularVelocity = maxAngularVelocity or 8,
     maneuveringThrusterPower = maneuveringThrusterPower or 1,
     enginePower = enginePower or 1
-  } 
+  }
   self.shape = love.physics.newPolygonShape(self.vertices)
   self.fixture = love.physics.newFixture(self.body, self.shape, 1) -- A higher density gives it more mass.
   self.fixture:setFilterData( 2, 1, 0 )
@@ -22,7 +22,7 @@ function Ship:init( x, y, enginePower, maneuveringThrusterPower, maxAngularVeloc
   --self.angle=0
 end
 
-function clamp(x, min, max)
+local function clamp(x, min, max)
   if x < min then return min end
   if x > max then return max end
   return x
@@ -48,12 +48,12 @@ function Ship:draw()
   ]]--
 end
 
-function Ship:getPropulsionVector()
+function Ship:getPropulsionVector(backward)
   local angle = self.body:getAngle()
   local propulsion = 150 * self.options["enginePower"]
   local fx, fy = math.cos(angle - math.pi / 2) * propulsion, math.sin(angle - math.pi / 2) * propulsion
 
-  if love.keyboard.isDown("s") then
+  if backward then
     fx = fx * -1
     fy = fy * -1
   end
@@ -62,16 +62,17 @@ function Ship:getPropulsionVector()
 end
 
 function Ship:updatePropulsion(dt)
-  if love.keyboard.isDown("w", "s") then
-    self.body:applyLinearImpulse(self:getPropulsionVector())
+  if love.keyboard.isDown("w", "s", "up", "down") then
+    local backward=love.keyboard.isDown("s", "down")
+    self.body:applyLinearImpulse(self:getPropulsionVector(backward))
   end
 end
 
 function Ship:updateAngularVelocity(dt)
   local angularVelocity = self.body:getAngularVelocity()
-  if love.keyboard.isDown("a", "d") then
+  if love.keyboard.isDown("a", "d", "left", "right") then
     local fAngularVelocity = 0.15 * self.options["maneuveringThrusterPower"]
-    if love.keyboard.isDown("a") then
+    if love.keyboard.isDown("a","left") then
       fAngularVelocity = fAngularVelocity * -1
     end
     angularVelocity = angularVelocity + fAngularVelocity
