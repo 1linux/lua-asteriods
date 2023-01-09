@@ -1,5 +1,6 @@
 require"class"
 
+---@class Object:Class
 Object = class()
 
 Object:set{
@@ -78,6 +79,7 @@ end
 
 function Object:delete()
   --TODO: Delete-Marker setzen, bei nächstem Update löschen
+  self.deleted = true
 end
 
 function Object:event(eventname, ...)

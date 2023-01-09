@@ -1,9 +1,13 @@
 require"class"
 require"object"
 
+---@class Asteroid:Object
 Asteroid=Object:extend()
 
 function Asteroid:init(size, parent, x, y)
+  if parent then
+    x, y = parent.x, parent.y
+  end
   Object.init(self,'Asteroid',x,y)
   self.size=size
   self.distorts={}
@@ -32,6 +36,14 @@ function Asteroid:init(size, parent, x, y)
   self.fixture:setRestitution( math.random()*1.0 +0.5 )
   self.fixture:setFriction( 1.0 )
   self:reconfigureCollission()
+  if parent then
+    self.body:setLinearVelocity(parent.body:getLinearVelocity())
+  end
+end
+function Asteroid:destroy()
+  self.shape:release()
+  self.fixture:destroy()
+  self.body:destroy()
 end
 
 function Asteroid:draw()

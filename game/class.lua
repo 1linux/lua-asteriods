@@ -1,9 +1,12 @@
+---@class Class
 Class = {}
 
 -- default (empty) constructor
 function Class:init(...) end
 
 -- create a subclass
+---@generic T
+---@return Class<T>
 function Class:extend(obj)
 	local obj = obj or {}
 
@@ -93,7 +96,6 @@ function Class:new(...)
 	if obj.init then obj:init(...) end
 	return obj
 end
-
 
 function class(attr)
 	attr = attr or {}

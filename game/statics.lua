@@ -1,4 +1,6 @@
 Statics={
   tmp={},
-  objects={}
+  objects={},
+  nextAsteroidSpawn=0,
+  nextTick={}
 }
