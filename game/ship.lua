@@ -1,6 +1,8 @@
 require"class"
 require"object"
+require"shot"
 
+---@class Ship:Object
 Ship=Object:extend()
 
 function Ship:init( x, y, enginePower, maneuveringThrusterPower, maxAngularVelocity)
@@ -13,8 +15,10 @@ function Ship:init( x, y, enginePower, maneuveringThrusterPower, maxAngularVeloc
   self.options = {
     maxAngularVelocity = maxAngularVelocity or 8,
     maneuveringThrusterPower = maneuveringThrusterPower or 1,
-    enginePower = enginePower or 1
+    enginePower = enginePower or 1,
+    shotSpeed = 3,
   }
+  self.lastShot = 0
   self.shape = love.physics.newPolygonShape(self.vertices)
   self.fixture = love.physics.newFixture(self.body, self.shape, 1) -- A higher density gives it more mass.
   self.fixture:setFilterData( 2, 1, 0 )
@@ -31,13 +35,27 @@ end
 function Ship:update(dt)
   self:updatePropulsion(dt)
   self:updateAngularVelocity(dt)
+  if love.keyboard.isDown("space") then
+    if love.timer.getTime() - self.lastShot >= 1 / self.options["shotSpeed"] then
+      self:Shoot()
+    end
+  end
 
   Object.update(self,dt)
 end
 
+function Ship:Shoot()
+  local angle = self.body:getAngle()
+  local shipForewardAngle = angle - math.pi / 2
+  local xVel, yVel = math.cos(shipForewardAngle), math.sin(shipForewardAngle)
+  local shotLength = 45
+  Shot(self.x + xVel * shotLength, self.y + yVel * shotLength, angle, xVel, yVel, 1000)
+  self.lastShot = love.timer.getTime()
+end
+
 function Ship:draw()
   love.graphics.setLineStyle("rough")
-  love.graphics.setColor(0,1,0)
+  love.graphics.setColor(0,0.7,1)
   love.graphics.polygon("line", self.body:getWorldPoints(self.shape:getPoints()))
   --[[
   local cx, cy = self.body:getWorldCenter()

@@ -7,7 +7,7 @@ cosmologicalConstant2 = 0.15 * 60
 
 require"statics"
 require"object"
-require"asteriod"
+require"asteroid"
 require"ship"
 love.physics.setMeter(2)
 
@@ -52,8 +52,12 @@ function love.load()
 
 end
 
+function nextTick(func)
+  table.insert(Statics.nextTick, func)
+end
 
 function love.draw()
+  love.graphics.setColor(1, 1, 1)
   love.graphics.print(tostring(love.timer.getFPS())..' FPS', 0, 0)
   if Statics.vsync then
     love.graphics.print('VSYNC', 0, 10)
@@ -70,6 +74,9 @@ function love.update(dt)
 
   Statics.tmp={}
 
+  for i = 1, #Statics.nextTick do Statics.nextTick[i]() end
+  Statics.nextTick = {}
+
   Statics.world:update(dt) --this puts the world into motion
 
   if Statics.tmp.didCollision then
@@ -81,7 +88,21 @@ function love.update(dt)
     Statics.sounds.sndExplosion:play()
   end
 
-  for _,obj in ipairs(Statics.objects) do
+  if Statics.nextAsteroidSpawn <= love.timer.getTime() then
+    local ast=Asteroid(math.random(1,6), nil, 400+math.random()*800-400,300+math.random()*600-300)
+    ast.velocity=1
+    ast.spin=randDir()*(math.random()*2+0.2)
+    ast.heading=math.random()*8
+    ast.body:setLinearVelocity(randDir()*math.random(80,150), randDir()*math.random(80,150))
+    Statics.nextAsteroidSpawn = love.timer.getTime() + math.random() * 30
+  end
+
+  for i = #Statics.objects, 1, -1 do
+    local obj = Statics.objects[i]
     obj:update(dt)
+    if obj.deleted then
+      if obj.destroy then obj:destroy() end
+      table.remove(Statics.objects, i)
+    end
   end
 end
