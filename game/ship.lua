@@ -16,13 +16,16 @@ function Ship:init( x, y, enginePower, maneuveringThrusterPower, maxAngularVeloc
     maxAngularVelocity = maxAngularVelocity or 8,
     maneuveringThrusterPower = maneuveringThrusterPower or 1,
     enginePower = enginePower or 1,
-    shotSpeed = 3,
+    maxShots = 10,
+    --shotSpeed = 3,
   }
-  self.lastShot = 0
+  -- self.lastShot = 0
+  self.fireing = false
+  self.activeShots=0
   self.shape = love.physics.newPolygonShape(self.vertices)
   self.fixture = love.physics.newFixture(self.body, self.shape, 1) -- A higher density gives it more mass.
   self.fixture:setFilterData( 2, 1, 0 )
-  self.body:setAngularDamping( 0.3 )
+  self.body:setAngularDamping( 0.8 )
   --self.angle=0
 end
 
@@ -35,22 +38,24 @@ end
 function Ship:update(dt)
   self:updatePropulsion(dt)
   self:updateAngularVelocity(dt)
-  if love.keyboard.isDown("space") then
-    if love.timer.getTime() - self.lastShot >= 1 / self.options["shotSpeed"] then
-      self:Shoot()
-    end
-  end
-
+  self:checkShoot()
   Object.update(self,dt)
 end
 
+function Ship:checkShoot()
+  if not self.fireing and love.keyboard.isDown("space") and self.activeShots < self.options.maxShots then
+    self.fireing = true
+    -- if love.timer.getTime() - self.lastShot >= 1 / self.options["shotSpeed"] then
+    self:Shoot()
+  elseif self.fireing and not love.keyboard.isDown("space") then
+    self.fireing = false
+    --                                                                       end
+  end
+end
+
 function Ship:Shoot()
-  local angle = self.body:getAngle()
-  local shipForewardAngle = angle - math.pi / 2
-  local xVel, yVel = math.cos(shipForewardAngle), math.sin(shipForewardAngle)
-  local shotLength = 45
-  Shot(self.x + xVel * shotLength, self.y + yVel * shotLength, angle, xVel, yVel, 1000)
-  self.lastShot = love.timer.getTime()
+  Shot(self, {runtime=3}) --  self.x + xVel * shotLength, self.y + yVel * shotLength, angle, xVel, yVel, 1000)
+  -- self.lastShot = love.timer.getTime()
 end
 
 function Ship:draw()

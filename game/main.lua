@@ -36,7 +36,7 @@ function love.load()
     --table.insert(objects, ast)
   end
 
-  Ship(400+math.random()*800-400,300+math.random()*600-300)
+  ship = Ship(400+math.random()*800-400,300+math.random()*600-300)
 
   Statics.world:setCallbacks(
     function(fixture_a, fixture_b, contact)
@@ -62,6 +62,9 @@ function love.draw()
   if Statics.vsync then
     love.graphics.print('VSYNC', 0, 10)
   end
+  local vx,vy=ship.body:getLinearVelocity()
+  local s=string.format("%f / %f", vx,vy)
+  love.graphics.print(s, 500, 0)
   for _,obj in ipairs(Statics.objects) do
     obj:draw()
   end
@@ -98,11 +101,12 @@ function love.update(dt)
   end
 
   for i = #Statics.objects, 1, -1 do
-    local obj = Statics.objects[i]
-    obj:update(dt)
+    local obj = Statics.objects[i]    
     if obj.deleted then
       if obj.destroy then obj:destroy() end
       table.remove(Statics.objects, i)
+    else
+      obj:update(dt)      
     end
   end
 end
