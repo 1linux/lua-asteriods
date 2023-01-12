@@ -5,7 +5,7 @@ require"shot"
 ---@class Ship:Object
 Ship=Object:extend()
 
-function Ship:init( x, y, enginePower, maneuveringThrusterPower, maxAngularVelocity)
+function Ship:init(x, y)
   Object.init(self,'Ship',x,y)
   self.vertices={
     -10, 10,
@@ -13,20 +13,18 @@ function Ship:init( x, y, enginePower, maneuveringThrusterPower, maxAngularVeloc
      10, 10,
   }
   self.options = {
-    maxAngularVelocity = maxAngularVelocity or 8,
-    maneuveringThrusterPower = maneuveringThrusterPower or 1,
-    enginePower = enginePower or 1,
-    maxShots = 10,
-    --shotSpeed = 3,
+    maxAngularVelocity = Statics.parameters.shipMaxAngularVelocity or 8,
+    maneuveringThrusterPower = Statics.parameters.shipManeuveringThrusterPower or 1,
+    enginePower = Statics.parameters.shipEnginePower or 1,
+    maxShots = Statics.parameters.shipMaxShots or 10,
+    reversePowerFraction = Statics.parameters.shipReverseEnginePowerFraction or 1
   }
-  -- self.lastShot = 0
   self.fireing = false
   self.activeShots=0
   self.shape = love.physics.newPolygonShape(self.vertices)
   self.fixture = love.physics.newFixture(self.body, self.shape, 1) -- A higher density gives it more mass.
   self.fixture:setFilterData( 2, 1, 0 )
-  self.body:setAngularDamping( 0.8 )
-  --self.angle=0
+  self.body:setAngularDamping( Statics.parameters.shipAngularDamping or 2 )
 end
 
 local function clamp(x, min, max)
@@ -54,7 +52,7 @@ function Ship:checkShoot()
 end
 
 function Ship:Shoot()
-  Shot(self, {runtime=3}) --  self.x + xVel * shotLength, self.y + yVel * shotLength, angle, xVel, yVel, 1000)
+  Shot(self, {runtime=3, speed=Statics.parameters.shipShotVelocity}) --  self.x + xVel * shotLength, self.y + yVel * shotLength, angle, xVel, yVel, 1000)
   -- self.lastShot = love.timer.getTime()
 end
 
@@ -73,12 +71,12 @@ end
 
 function Ship:getPropulsionVector(dt, backward)
   local angle = self.body:getAngle()
-  local propulsion = cosmologicalConstant * dt * self.options["enginePower"]
+  local propulsion = cosmologicalConstant * dt * self.options.enginePower
   local fx, fy = math.cos(angle - math.pi / 2) * propulsion, math.sin(angle - math.pi / 2) * propulsion
 
   if backward then
-    fx = fx * -1
-    fy = fy * -1
+    fx = fx * -1 / self.options.reversePowerFraction
+    fy = fy * -1 / self.options.reversePowerFraction
   end
 
   return fx, fy

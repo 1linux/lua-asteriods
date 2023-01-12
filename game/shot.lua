@@ -6,16 +6,15 @@ require"object"
 Shot=Object:extend()
 
 function Shot:init(parent, params) --x, y, angle, xVel, yVel, maxVelocity)  
-  Object.init(self,'Shot',parent.x,parent.y)
   self.parent=parent
-
   local angle = parent.body:getAngle()
   local shipForewardAngle = angle - math.pi / 2
   local xVel, yVel = math.cos(shipForewardAngle), math.sin(shipForewardAngle)
+
+  Object.init(self,'Shot',parent.x + 15*xVel,parent.y + 15*yVel)  -- make shot appear outside the ship
+
   local shipVx, shipVy = parent.body:getLinearVelocity()
-  -- local shotLength = 45
-  local relativeVelocity = 8000
-  -- xVel * maxVelocity - shipVx/dt , yVel * maxVelocity - shipVy/dt
+  local relativeVelocity = params.speed or 8000
   xVel=shipVx + xVel * relativeVelocity
   yVel=shipVy + yVel * relativeVelocity
 
