@@ -40,11 +40,6 @@ function Asteroid:init(size, parent, x, y)
     self.body:setLinearVelocity(parent.body:getLinearVelocity())
   end
 end
-function Asteroid:destroy()
-  self.shape:release()
-  self.fixture:destroy()
-  self.body:destroy()
-end
 
 function Asteroid:draw()
   local _,_,group=self.fixture:getFilterData()
@@ -68,7 +63,7 @@ function Asteroid:event(eventname,...)
     -- Statics.sounds.sndClick:play()
   elseif eventname=='COLLISION' then
     local args={...}
-    if args[1].name=='Asteroid' then
+    if args[1] and args[1].name=='Asteroid' then
       Statics.tmp.didCollision=true
     end
 

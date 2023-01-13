@@ -2,6 +2,8 @@ if os.getenv("LOCAL_LUA_DEBUGGER_VSCODE") == "1" then
   require("lldebugger").start()
 end
 
+table.unpack = table.unpack or unpack
+
 cosmologicalConstant = 150 *60
 cosmologicalConstant2 = 0.15 * 60
 
@@ -11,7 +13,7 @@ require"asteroid"
 require"ship"
 love.physics.setMeter(2)
 
-Statics.world = love.physics.newWorld(0, 0, false)
+Statics.world = love.physics.newWorld(0, 0, true)
 
 Statics.sounds={}
 Statics.sounds.sndClick = love.audio.newSource("sounds/click.wav", "static")
@@ -23,10 +25,14 @@ local randDir=function()
   if math.random()<0.5 then return -1 else return 1 end
 end
 
+
 function love.load()
   love.window.setMode(1440, 768, {fullscreen=true, resizable=true, vsync=false,})
   love.mouse.setVisible(false)
-  for t=1,15 do
+
+  ship = Ship(400+math.random()*800-400,300+math.random()*600-300)
+
+  for t=1,0 do
     local ast=Asteroid(math.random(1,6), nil, 400+math.random()*800-400,300+math.random()*600-300)
     ast.velocity=1
     ast.spin=randDir()*(math.random()*2+0.2)
@@ -36,7 +42,17 @@ function love.load()
     --table.insert(objects, ast)
   end
 
-  ship = Ship(400+math.random()*800-400,300+math.random()*600-300)
+  local function asteroidSpawn()
+    local ast=Asteroid(math.random(1,6), nil, 400+math.random()*800-400,300+math.random()*600-300)
+    ast.velocity=1
+    ast.spin=randDir()*(math.random()*2+0.2)
+    ast.heading=math.random()*8
+    ast.body:setLinearVelocity(randDir()*math.random(80,150), randDir()*math.random(80,150))
+    ship:defer(math.random() * 30, function()
+      asteroidSpawn()
+    end)
+  end  
+  asteroidSpawn()
 
   Statics.world:setCallbacks(
     function(fixture_a, fixture_b, contact)
@@ -50,10 +66,6 @@ function love.load()
     end, function() end
   )
 
-end
-
-function nextTick(func)
-  table.insert(Statics.nextTick, func)
 end
 
 function love.draw()
@@ -76,12 +88,8 @@ function love.update(dt)
   if love.keyboard.isDown("b") then love.window.setVSync( 0 );Statics.vsync=false end
 
   Statics.tmp={}
-
-  for i = 1, #Statics.nextTick do Statics.nextTick[i]() end
-  Statics.nextTick = {}
-
+  Timeout.update(dt)
   Statics.world:update(dt) --this puts the world into motion
-
   if Statics.tmp.didCollision then
     Statics.sounds.sndClick:stop()
     Statics.sounds.sndClick:play()
@@ -91,20 +99,13 @@ function love.update(dt)
     Statics.sounds.sndExplosion:play()
   end
 
-  if Statics.nextAsteroidSpawn <= love.timer.getTime() then
-    local ast=Asteroid(math.random(1,6), nil, 400+math.random()*800-400,300+math.random()*600-300)
-    ast.velocity=1
-    ast.spin=randDir()*(math.random()*2+0.2)
-    ast.heading=math.random()*8
-    ast.body:setLinearVelocity(randDir()*math.random(80,150), randDir()*math.random(80,150))
-    Statics.nextAsteroidSpawn = love.timer.getTime() + math.random() * 30
-  end
-
   for i = #Statics.objects, 1, -1 do
-    local obj = Statics.objects[i]    
+    local obj = Statics.objects[i]
     if obj.deleted then
+      Timeout.remove(obj)      
       if obj.destroy then obj:destroy() end
       table.remove(Statics.objects, i)
+      collectgarbage()
     else
       obj:update(dt)      
     end

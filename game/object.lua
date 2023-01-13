@@ -1,4 +1,5 @@
 require"class"
+require"timeout"
 
 ---@class Object:Class
 Object = class()
@@ -50,6 +51,14 @@ Object:set{
   acceleration=0, -- Acceleration in units / Sekunde^2
 }
 
+function Object:init(objectName,x,y)
+  self.body=love.physics.newBody(Statics.world, x, y, "dynamic")
+  self.x=x
+  self.y=y
+  self.name=objectName
+  table.insert(Statics.objects,self)
+end
+
 -- Simple Object - bewegt sich nicht
 function Object:update(dt)
   local repo=false
@@ -82,14 +91,28 @@ function Object:delete()
   self.deleted = true
 end
 
+function Object:destroy()
+  if self.shape then
+    self.shape:release()
+    self.shape=nil
+  end
+  if self.fixture then
+    self.fixture:release()
+    --self.fixture:destroy()
+    self.fixture=nil
+  end
+  if self.body then
+    self.body:release()
+    --self.body:destroy()
+    self.body=nil
+  end
+end
+
 function Object:event(eventname, ...)
   --TODO: Delete-Marker setzen, bei nächstem Update löschen
 end
 
-function Object:init(objectName,x,y)
-  self.body=love.physics.newBody(Statics.world, x, y, "dynamic")
-  self.x=x
-  self.y=y
-  self.name=objectName
-  table.insert(Statics.objects,self)
+function Object:defer(secs, fun, ...)
+  Timeout(self, secs, fun, {...} )
 end
+

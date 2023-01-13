@@ -52,8 +52,7 @@ function Ship:checkShoot()
 end
 
 function Ship:Shoot()
-  Shot(self, {runtime=3, speed=Statics.parameters.shipShotVelocity}) --  self.x + xVel * shotLength, self.y + yVel * shotLength, angle, xVel, yVel, 1000)
-  -- self.lastShot = love.timer.getTime()
+    Shot(self, {runtime=3, speed=Statics.parameters.shipShotVelocity})
 end
 
 function Ship:draw()
