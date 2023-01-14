@@ -4,6 +4,8 @@ require"timeout"
 ---@class Object:Class
 Object = class()
 
+Object.objects={}
+
 Object:set{
 	active = {
     value = true,
@@ -56,7 +58,7 @@ function Object:init(objectName,x,y)
   self.x=x
   self.y=y
   self.name=objectName
-  table.insert(Statics.objects,self)
+  table.insert(Object.objects,self)
 end
 
 -- Simple Object - bewegt sich nicht
@@ -89,6 +91,20 @@ end
 function Object:delete()
   --TODO: Delete-Marker setzen, bei nächstem Update löschen
   self.deleted = true
+end
+
+function Object.updateAll(dt)
+  for i = #Object.objects, 1, -1 do
+    local obj = Object.objects[i]
+    if obj.deleted then
+      if obj.body then obj.body:setActive( false ) end
+      Timeout.remove(obj)      
+      if obj.destroy then obj:destroy() end
+      table.remove(Object.objects, i)
+    else
+      obj:update(dt)      
+    end
+  end
 end
 
 function Object:destroy()

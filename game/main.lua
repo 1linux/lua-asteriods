@@ -32,7 +32,7 @@ function love.load()
 
   ship = Ship(400+math.random()*800-400,300+math.random()*600-300)
 
-  for t=1,0 do
+  for t=1,5 do
     local ast=Asteroid(math.random(1,6), nil, 400+math.random()*800-400,300+math.random()*600-300)
     ast.velocity=1
     ast.spin=randDir()*(math.random()*2+0.2)
@@ -57,7 +57,7 @@ function love.load()
   Statics.world:setCallbacks(
     function(fixture_a, fixture_b, contact)
       local a,b
-      for _, o in ipairs(Statics.objects) do
+      for _, o in ipairs(Object.objects) do
         if o.fixture==fixture_a then a=o end
         if o.fixture==fixture_b then b=o end
       end
@@ -74,10 +74,9 @@ function love.draw()
   if Statics.vsync then
     love.graphics.print('VSYNC', 0, 10)
   end
-  local vx,vy=ship.body:getLinearVelocity()
-  local s=string.format("%f / %f", vx,vy)
-  love.graphics.print(s, 500, 0)
-  for _,obj in ipairs(Statics.objects) do
+  love.graphics.print(string.format("#objs: %d", #Object.objects), 50, 0)
+
+  for _,obj in ipairs(Object.objects) do
     obj:draw()
   end
 end
@@ -88,8 +87,10 @@ function love.update(dt)
   if love.keyboard.isDown("b") then love.window.setVSync( 0 );Statics.vsync=false end
 
   Statics.tmp={}
-  Timeout.update(dt)
-  Statics.world:update(dt) --this puts the world into motion
+  Timeout.update(dt)        -- handle deferred methods
+  Statics.world:update(dt)  -- this puts the world into motion
+  Object.updateAll(dt)      -- update game objects (where applicable)
+
   if Statics.tmp.didCollision then
     Statics.sounds.sndClick:stop()
     Statics.sounds.sndClick:play()
@@ -99,15 +100,4 @@ function love.update(dt)
     Statics.sounds.sndExplosion:play()
   end
 
-  for i = #Statics.objects, 1, -1 do
-    local obj = Statics.objects[i]
-    if obj.deleted then
-      Timeout.remove(obj)      
-      if obj.destroy then obj:destroy() end
-      table.remove(Statics.objects, i)
-      collectgarbage()
-    else
-      obj:update(dt)      
-    end
-  end
 end
